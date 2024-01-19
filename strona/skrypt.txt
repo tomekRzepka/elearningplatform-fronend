@@ -1,0 +1,41 @@
+    <form id="reset-form" style="display: none;">
+        <label for="reset-email">Twój adres e-mail:</label>
+        <input type="email" id="reset-email" name="reset-email" required>
+
+        <button type="button" onclick="resetPassword()">Zresetuj hasło</button>
+        
+        <a href="#" class="reset-link" onclick="showLoginForm()">Wróć do logowania</a>
+    </form>
+
+    <script>
+        function togglePasswordVisibility() {
+            var passwordInput = document.getElementById('password');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+            } else {
+                passwordInput.type = 'password';
+            }
+        }
+
+        function showResetForm() {
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('reset-form').style.display = 'block';
+        }
+
+        function showLoginForm() {
+            document.getElementById('reset-form').style.display = 'none';
+            document.getElementById('login-form').style.display = 'block';
+        }
+
+        function resetPassword() {
+            // Symulacja wysłania żądania resetu hasła (JavaScript)
+            var email = document.getElementById('reset-email').value;
+            alert('Żądanie resetu hasła wysłane na adres: ' + email);
+        }
+    </script>
+
+
+
+
+
+CSS

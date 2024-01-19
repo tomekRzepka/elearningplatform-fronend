@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strona z Kursami</title>
+    <link rel="stylesheet" href="kursy.css">
+</head>
+<body>
+    <header>
+        <div id="naglowek">
+        <h1>Kursy Online</h1>
+    </div>
+    </header>
+
+    <div id="courses">
+        <h2>Dostępne Kursy</h2>
+        <ul>
+            <li>
+                <h3>Matematyka Podstawowa</h3>
+                <p>Kurs wprowadzający do podstaw matematyki. Dowiedz się o liczbach, równaniach i geometrii.</p>
+                <button onclick="redirectToCourse('math_basic.html')">Przejdź do kursu</button>
+            </li>
+            <li>
+                <h3>Język Angielski dla Początkujących</h3>
+                <p>Kurs przeznaczony dla osób rozpoczynających naukę języka angielskiego. Podstawowe zwroty i gramatyka.</p>
+                <button onclick="redirectToCourse('english_beginner.html')">Przejdź do kursu</button>
+            </li>
+            <!-- Dodaj więcej kursów według potrzeb -->
+        </ul>
+    </div>
+
+    <footer>
+        <p>&copy; 2023 Kursy Online</p>
+    </footer>
+
+    <script>
+        function redirectToCourse(coursePage) {
+            window.location.href = coursePage;
+        }
+    </script>
+</body>
+</html>

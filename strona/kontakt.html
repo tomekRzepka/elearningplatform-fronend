@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formularz Kontaktowy</title>
+    <link rel="stylesheet" href="stylkontakt.css">
+</head>
+<body>
+
+<form action="kontakt" method="post">
+    <label for="name">Imię:</label>
+    <input type="text" id="name" name="name" required>
+
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" required>
+
+    <label for="message">Wiadomość:</label>
+    <textarea id="message" name="message" rows="4" maxlength="1000" placeholder="Masz pytanie? Napisz do nas (max 1000 znaków)" required></textarea>
+
+    <button type="submit">Wyślij</button>
+</form>
+
+</body>
+</html>
