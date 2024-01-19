@@ -41,6 +41,8 @@
                     if (response.ok) {
                         const userData = await response.json();
 
+                        sessionStorage.setItem("username", JSON.stringify(userData));
+
                         // Sprawdzenie roli i przekierowanie na odpowiednią stronę
                         switch (userData.role.toUpperCase()) {
                             case 'CUSTOMER':
