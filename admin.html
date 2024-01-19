@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Zarządzania Użytkownikami</title>
+    <link rel="stylesheet" href="style.css">
+    <script type="module">
+        document.addEventListener('DOMContentLoaded', async () => {
+            const listaUzytkownikow = document.getElementById('lista-uzytkownikow');
+            const edycjaUzytkownikaContainer = document.getElementById('edycja-uzytkownika-container');
+            const editForm = document.getElementById('editForm');
+            const selectRola = document.getElementById('nowa_rola');
+
+            // Funkcja do pobierania i wyświetlania wszystkich użytkowników
+            async function getAllUsers() {
+                try {
+                    const response = await fetch('http://localhost:8080/all');
+                    const users = await response.json();
+
+                    // Usunięcie istniejących elementów z listy użytkowników
+                    listaUzytkownikow.innerHTML = '<h2>Lista Użytkowników</h2><ul></ul>';
+
+                    // Dodanie nowych elementów do listy użytkowników
+                    users.forEach(user => {
+                        const listItem = document.createElement('li');
+                        listItem.innerHTML = `<span class="link-uzytkownik" data-login="${user.login}">${user.login}</span>`;
+                        listaUzytkownikow.querySelector('ul').appendChild(listItem);
+                    });
+
+                    // Obsługa kliknięcia na użytkownika
+                    const linkUzytkownika = document.querySelectorAll('.link-uzytkownik');
+                    linkUzytkownika.forEach(link => {
+                        link.addEventListener('click', async () => {
+                            const selectedLogin = link.getAttribute('data-login');
+                            edycjaUzytkownikaContainer.style.display = 'block'; // Pokaż kontener edycji użytkownika
+                            editForm.setAttribute('data-login', selectedLogin); // Ustaw atrybut data-login na formularzu
+                        });
+                    });
+                } catch (error) {
+                    console.error('Błąd:', error);
+                }
+            }
+
+            // Obsługa formularza edycji
+            editForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+
+                const selectedLogin = editForm.getAttribute('data-login');
+                const selectedRole = selectRola.value;
+
+                try {
+                    const response = await fetch(`http://localhost:8080/edit/${selectedLogin}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            role: selectedRole,
+                        }),
+                    });
+
+                    if (response.ok) {
+                        console.log('Rola użytkownika została zaktualizowana.');
+                        // Dodaj kod do obsługi sukcesu (może odświeżenie listy użytkowników itp.)
+                    } else {
+                        console.error('Błąd aktualizacji roli użytkownika:', response.status);
+                    }
+                } catch (error) {
+                    console.error('Błąd:', error);
+                }
+            });
+
+            // Wywołanie funkcji przy ładowaniu strony
+            getAllUsers();
+        });
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <div id="lista-uzytkownikow">
+            <!-- Lista użytkowników zostanie dodana tutaj przez skrypt JavaScript -->
+        </div>
+
+        <div id="edycja-uzytkownika-container" style="display: none;">
+            <h1>Wybierz użytkownika</h1>
+            <form id="editForm" data-login="">
+                <label for="nowa_rola">Nowa rola:</label>
+                <select name="nowa_rola" id="nowa_rola" required>
+                    <option value="CUSTOMER">Klient</option>
+                    <option value="TEACHER">Nauczyciel</option>
+                    <option value="ADMIN">Administrator</option>
+                </select>
+                <button type="submit">Zaktualizuj Rolę</button>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>
