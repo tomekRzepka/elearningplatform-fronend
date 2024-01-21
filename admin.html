@@ -16,7 +16,7 @@
             // Funkcja do pobierania i wyświetlania wszystkich użytkowników
             async function getAllUsers() {
                 try {
-                    const response = await fetch('http://localhost:8080/all');
+                    const response = await fetch('http://localhost:8080/api/v1/users/all');
                     const users = await response.json();
 
                     // Usunięcie istniejących elementów z listy użytkowników
@@ -33,9 +33,9 @@
                     const linkUzytkownika = document.querySelectorAll('.link-uzytkownik');
                     linkUzytkownika.forEach(link => {
                         link.addEventListener('click', async () => {
-                            const selectedLogin = link.getAttribute('data-login');
+                            const username = link.getAttribute('data-login');
                             edycjaUzytkownikaContainer.style.display = 'block'; // Pokaż kontener edycji użytkownika
-                            editForm.setAttribute('data-login', selectedLogin); // Ustaw atrybut data-login na formularzu
+                            editForm.setAttribute('data-login', username); // Ustaw atrybut data-login na formularzu
                         });
                     });
                 } catch (error) {
@@ -47,16 +47,19 @@
             editForm.addEventListener('submit', async (event) => {
                 event.preventDefault();
 
-                const selectedLogin = editForm.getAttribute('data-login');
+                const username = editForm.getAttribute('data-login');
                 const selectedRole = selectRola.value;
 
                 try {
-                    const response = await fetch(`http://localhost:8080/edit/${selectedLogin}`, {
+                    const response = await fetch(`http://localhost:8080/api/v1/users/edit/${username}`, {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify({
+                        body: JSON.stringify({                           
+                            login: username,
+                            password: null,
+                            email: null,
                             role: selectedRole,
                         }),
                     });
@@ -75,10 +78,21 @@
             // Wywołanie funkcji przy ładowaniu strony
             getAllUsers();
         });
+        const logoutButton = document.getElementById('logout-button');
+            logoutButton.addEventListener('click', () => {
+                // Wyczyszczenie sesji i przekierowanie do strony logowania
+                sessionStorage.clear();
+                window.location.href = 'logowanie.html';
+        });
     </script>
 </head>
 
 <body>
+    <header>
+        <span>Platforma elerningowa</span>
+                <button id="logout-button">Wyloguj</button>
+    </header>
+    
     <div class="container">
         <div id="lista-uzytkownikow">
             <!-- Lista użytkowników zostanie dodana tutaj przez skrypt JavaScript -->
@@ -94,6 +108,7 @@
                     <option value="ADMIN">Administrator</option>
                 </select>
                 <button type="submit">Zaktualizuj Rolę</button>
+                <a href="index.php">Powrót do strony głównej</a> 
             </form>
         </div>
     </div>

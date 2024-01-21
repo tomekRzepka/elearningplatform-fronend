@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strona Rejestracji</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <span>Platforma elerningowa</span>
+        
+    </header>
+    <script type="module">
+        document.addEventListener('DOMContentLoaded', async () => {
+            const registerForm = document.getElementById('register-form');
+            const successMessage = document.getElementById('success-message');
+
+            registerForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+
+                const username = document.getElementById('username').value;
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirm-password').value;
+
+                if (password !== confirmPassword) {
+                    alert('Hasła nie są zgodne');
+                    return;
+                }
+
+                try {
+                    const response = await fetch('http://localhost:8080/api/v1/users/add', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            login: username,
+                            email: email,
+                            password: password,
+                        }),
+                    });
+
+                    if (response.ok) {
+                        // Dodatkowe akcje po poprawnym dodaniu użytkownika
+                        console.log('Użytkownik dodany pomyślnie');
+                        successMessage.style.display = 'block'; // Wyświetl komunikat
+                    } else {
+                        console.error('Błąd dodawania użytkownika:', response.status);
+                    }
+                } catch (error) {
+                    console.error('Błąd:', error);
+                }
+            });
+        });
+    </script>
+
+    <div class="container">
+        <form id="register-form">
+            <label for="username">Login:</label>
+            <input type="text" id="username" name="username" required>
+
+            <label for="email">Adres e-mail:</label>
+            <input type="email" id="email" name="email" required>
+
+            <label for="password">Hasło:</label>
+            <input type="password" id="password" name="password" required>
+
+            <label for="confirm-password">Powtórz hasło:</label>
+            <input type="password" id="confirm-password" name="confirm-password" required>
+
+            <button type="submit">Zarejestruj się</button>
+            <a href="logowanie.html">Masz już konto? Zaloguj się</a>
+
+            <!-- Dodany div na komunikat o sukcesie -->
+            <div id="success-message" style="display: none; color: green;">
+                Użytkownik został pomyślnie dodany!
+            </div>
+        </form>
+    </div>
+</body>
+</html>

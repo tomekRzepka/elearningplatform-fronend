@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strona z zalogowanym użytkownikiem</title>
+    <link rel="stylesheet" href="kursy.css">
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="#">Strona główna</a></li>
+            <li><a href="kursy.html">Kursy</a></li>
+            <li><a href="logowanie.html">Logowanie</a></li>
+            <li><a href="rejestracja.html">Rejestracja</a></li>
+            <li><button id="logout-button">Wyloguj</button></li>
+        </ul>
+        
+    </nav>
+    <div id="teacher-content" style="display: none;">
+        <h1>Witaj, Nauczycielu!</h1>
+
+        <div id="course-creation">
+            <h1>Panel Nauczyciela - Tworzenie Kursu</h1>
+    
+            <form id="course-form">
+                <label for="title">Tytuł Kursu:</label>
+                <input type="text" id="title" name="title" required>
+    
+                <label for="price">Cena Kursu:</label>
+                <input type="number" id="price" name="price" step="0.01" required>
+    
+                <label for="description">Opis Kursu (do 255 znaków):</label>
+                <textarea id="description" name="description" maxlength="255" required></textarea>
+    
+                <label for="link">Link do Materiałów:</label>
+                <input type="text" id="link" name="link" required>
+    
+                <button type="submit">Utwórz Kurs</button>
+            </form>
+    
+            <div id="success-message" style="display: none; color: green;">
+                Kurs został pomyślnie utworzony!
+            </div>
+        </div>
+
+        <div id="course-list" style="display: none;">
+            <h1>Twoje Kursy</h1>
+            <div id="courses">
+                <!-- Lista kursów będzie renderowana tutaj -->
+            </div>
+        </div>
+    </div>
+
+    <div id="customer-content" style="display: none;">
+        <h1>Witaj, Kliencie!</h1>
+        <div id="all-courses">
+            <h2>Wszystkie Kursy</h2>
+            <div id="all-courses-container">
+                <!-- Lista wszystkich kursów będzie renderowana tutaj -->
+            </div>
+        </div>
+
+        <div id="my-courses" style="display: none;">
+            <h2>Twoje Kursy</h2>
+            <div id="my-courses-container">
+                <!-- Lista kursów przypisanych do użytkownika będzie renderowana tutaj -->
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        document.addEventListener('DOMContentLoaded', async () => {
+            const userRole = sessionStorage.getItem("userRole");
+            const customerContent = document.getElementById('customer-content');
+            const teacherContent = document.getElementById('teacher-content');
+            const courseCreation = document.getElementById('course-creation');
+            const courseList = document.getElementById('course-list');
+            const coursesContainer = document.getElementById('courses');
+            const allCoursesContainer = document.getElementById('all-courses-container');
+            const enrolledCoursesContainer = document.getElementById('my-courses-container');
+            
+            switch (userRole) {
+                case 'CUSTOMER':
+                    customerContent.style.display = 'block';
+
+                    try {
+                        // Pobierz wszystkie kursy
+                        const responseAllCourses = await fetch('http://localhost:8080/api/v1/course');
+                        
+                        if (responseAllCourses.ok) {
+                            const allCourses = await responseAllCourses.json();
+                            allCoursesContainer.innerHTML = '';
+
+                            allCourses.forEach(course => {
+                                // Renderuj kursy dostępne do zapisania
+                                const courseItem = document.createElement('div');
+                                courseItem.className = 'course-item';
+
+                                courseItem.innerHTML = `
+                                    <span class="course-link" data-id="${course.id}">${course.title}</span>
+                                    <p class="course-author">Autor: ${course.author}</p>
+                                    <p class="course-description">Opis: ${course.description}</p>
+                                    <button class="enroll-button" data-id="${course.id}">Zapisz się</button>
+                                `;
+
+                                allCoursesContainer.appendChild(courseItem);
+                            });
+                        } else {
+                            console.error('Błąd pobierania kursów:', responseAllCourses.status);
+                        }
+                        
+
+                        try {
+                    const response = await fetch(`http://localhost:8080/api/v1/course/bought/${loggedInUser.login}`);
+                    const courses = await response.json();
+
+                    // Dodanie nowych elementów do listy użytkowników
+                    courses.forEach(user => {
+                        const listItem = document.createElement('li');
+                        listItem.innerHTML = `<span class="link-uzytkownik">${course.title}</span>`;
+                        enrolledCoursesContainer.querySelector('ul').appendChild(listItem);
+                    });
+
+                } catch (error) {
+                    console.error('Błąd:', error);
+                }
+
+                        // Pobierz kursy przypisane do użytkownika
+                        const loggedInUser = JSON.parse(sessionStorage.getItem('username'));
+                        const responseUserCourses = await fetch(`http://localhost:8080/api/v1/course/bought/${loggedInUser.login}`);
+
+                        if (responseUserCourses.ok) {
+                            const userCourses = await responseUserCourses.json();
+                            enrolledCoursesContainer.innerHTML = '';
+
+                            userCourses.forEach(course => {
+                                
+                                const enrolledCourseItem = document.createElement('div');
+                                enrolledCourseItem.className = 'course-item';
+
+                                enrolledCourseItem.innerHTML = `
+                                    <span class="course-link" data-id="${course.id}">${course.title}</span>
+                                    <p class="course-author">Autor: ${course.author}</p>
+                                    <p class="course-description">Opis: ${course.description}</p>
+                                `;
+
+                                enrolledCoursesContainer.appendChild(enrolledCourseItem);
+                            });
+
+                            if (userCourses.length > 0) {
+                                document.getElementById('my-courses').style.display = 'block';
+                            }
+                        } else {
+                            console.error('Błąd pobierania kursów użytkownika:', responseUserCourses.status);
+                        }
+                    } catch (error) {
+                        console.error('Błąd:', error);
+                    }
+                    break;
+
+                case 'TEACHER':
+                    teacherContent.style.display = 'block';
+
+                    try {
+                        const responseTeacherCourses = await fetch('http://localhost:8080/api/v1/course');
+                        if (responseTeacherCourses.ok) {
+                            const teacherCourses = await responseTeacherCourses.json();
+                            coursesContainer.innerHTML = '';
+
+                            teacherCourses.forEach(course => {
+                                const courseItem = document.createElement('div');
+                                courseItem.className = 'course-item';
+
+                                courseItem.innerHTML = `
+                                    <span class="course-link" data-id="${course.id}">${course.title}</span>
+                                    <p class="course-author">Autor: ${course.author}</p>
+                                    <p class="course-description">Opis: ${course.description}</p>
+                                `;
+
+                                coursesContainer.appendChild(courseItem);
+                            });
+
+                            if (teacherCourses.length > 0) {
+                                courseList.style.display = 'block';
+                            }
+                        } else {
+                            console.error('Błąd pobierania kursów nauczyciela:', responseTeacherCourses.status);
+                        }
+                    } catch (error) {
+                        console.error('Błąd:', error);
+                    }
+                    break;
+
+                case 'ADMIN':
+                    window.location.href = 'admin.html';
+                    break;
+
+                default:
+                    console.error('Nieznana rola użytkownika:', userRole);
+                    break;
+            }
+        });
+    </script>
+    
+    <script type="module">
+        document.addEventListener('DOMContentLoaded', async () => {
+            const courseForm = document.getElementById('course-form');
+            const successMessage = document.getElementById('success-message');
+            let loggedInUser;
+
+            courseForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+
+                const title = document.getElementById('title').value;
+                const price = document.getElementById('price').value;
+                const description = document.getElementById('description').value;
+                const link = document.getElementById('link').value;
+
+                try {
+                    loggedInUser = JSON.parse(sessionStorage.getItem("username"));
+                    if (loggedInUser) {
+                        const username = loggedInUser.login;
+                        console.log('Zalogowany użytkownik:', username);
+                    } else {
+                        console.log('Dane użytkownika są null.');
+                    }
+                } catch (error) {
+                    console.error('Błąd podczas odczytu danych sesji:', error);
+                }
+
+                try {
+                    const response = await fetch('http://localhost:8080/api/v1/course/add', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            title: title,
+                            author: loggedInUser.login,
+                            price: parseFloat(price),
+                            description: description,
+                            link: link
+                        }),
+                    });
+
+                    if (response.ok) {
+                        successMessage.style.display = 'block';
+                    } else {
+                        console.error('Błąd tworzenia kursu:', response.status);
+                        const errorMessage = await response.json();
+                        console.error('Komunikat błędu:', errorMessage);
+                    }
+                } catch (error) {
+                    console.error('Błąd:', error);
+                }
+            });
+        });
+    </script>
+
+    <script type="module">
+        document.addEventListener('DOMContentLoaded', () => {
+            const userRole = sessionStorage.getItem("userRole");
+
+            switch (userRole) {
+                case 'CUSTOMER':
+                    document.getElementById('customer-content').style.display = 'block';
+                    break;
+
+                case 'TEACHER':
+                    document.getElementById('teacher-content').style.display = 'block';
+                    break;
+
+                case 'ADMIN':
+                    window.location.href = 'admin.html';
+                    break;
+
+                default:
+                    console.error('Nieznana rola użytkownika:', userRole);
+                    break;
+            }
+        });
+
+        document.addEventListener('click', async (event) => {
+        const target = event.target;
+
+        if (target.classList.contains('enroll-button')) {
+            const courseId = target.getAttribute('data-id');
+            const courseContainer = target.closest('.course-item'); // Znajdź najbliższy element z klasą .course-item
+            const courseTitle = courseContainer.querySelector('.course-link').textContent.trim(); // Pobierz tekst z elementu .course-link
+            const loggedInUser = JSON.parse(sessionStorage.getItem('username'));
+
+            try {
+                const responseEnroll = await fetch('http://localhost:8080/api/v1/course/buy', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        customer: loggedInUser.login,
+                        courseTitle: courseTitle,
+                    }),
+                });
+
+                if (responseEnroll.ok) {
+                    alert('Zapisano na kurs!');
+                    const enrolledCourseItem = document.createElement('div');
+                    enrolledCourseItem.className = 'course-item';
+
+                    enrolledCourseItem.innerHTML = `
+                        <span class="course-link" data-id="${courseTitle}">${courseTitle}</span>
+                        <p class="course-author">Autor: ${courseContainer.querySelector('.course-author').textContent.trim()}</p>
+                        <p class="course-description">Opis: ${courseContainer.querySelector('.course-description').textContent.trim()}</p>
+                    `;
+
+                    enrolledCoursesContainer.appendChild(enrolledCourseItem);
+                    target.parentNode.remove();
+                } else {
+                    console.error('Błąd zapisywania na kurs:', responseEnroll.status);
+                }
+            } catch (error) {
+                console.error('Błąd:', error);
+            }
+        }
+    });
+
+
+        const logoutButton = document.getElementById('logout-button');
+        logoutButton.addEventListener('click', () => {
+            sessionStorage.clear();
+            window.location.href = 'logowanie.html';
+        });
+    </script>
+</body>
+</html>

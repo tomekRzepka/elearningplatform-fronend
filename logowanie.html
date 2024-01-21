@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strona Logowania z Resetem Hasła</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <form id="login-form">
+        <label for="username">Nazwa użytkownika:</label>
+        <input type="text" id="username" name="username" required>
+
+        <label for="password">Hasło:</label>
+        <input type="password" id="password" name="password" required>
+        <button type="submit">Zaloguj się</button>
+        <a href="index.php">Powrót do strony głównej</a>
+        <div id="error-message" style="display: none; color: red;">
+            Błędny login lub hasło. Spróbuj ponownie.
+        </div>
+    </form>
+
+    <script type="module">
+        document.addEventListener('DOMContentLoaded', async () => {
+            const loginForm = document.getElementById('login-form');
+            const errorMessage = document.getElementById('error-message');
+    
+            loginForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+    
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+    
+                try {
+                    const response = await fetch(`http://localhost:8080/api/v1/users/login`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            login: username,
+                            password: password
+                        }),
+                    });
+    
+                    if (response.ok) {
+                        const userData = await response.json();
+    
+                        // Zapisanie roli użytkownika w sessionStorage
+                        sessionStorage.setItem("userRole", userData.role.toUpperCase());
+                        sessionStorage.setItem("username", JSON.stringify(userData));
+    
+                        // Przekierowanie na odpowiednią stronę
+                        switch (userData.role.toUpperCase()) {
+                            case 'CUSTOMER':
+                                window.location.href = 'kursy.html';
+                                break;
+                            case 'TEACHER':
+                                window.location.href = 'kursy.html';
+                                break;
+                            case 'ADMIN':
+                                window.location.href = 'admin.html';
+                                break;
+                            default:
+                                console.error('Nieznana rola użytkownika:', userData.role);
+                                break;
+                        }
+                    } else {
+                        console.error('Błąd logowania, podano błędny login lub hasło', response.status);
+                        if (response.status === 500) {
+                            errorMessage.style.display = 'block';
+                        }
+                    }
+                } catch (error) {
+                    console.error('Błąd:', error);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
